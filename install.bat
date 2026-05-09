@@ -8,8 +8,9 @@ setlocal enabledelayedexpansion
 :: Falls back to plain redirect if PowerShell is blocked
 :: -------------------------------------------------------
 if not defined _LOGGED (
-    set "_LOGFILE=%~dp0install_log_%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%-%TIME:~6,2%.txt"
-    set "_LOGFILE=!_LOGFILE: =0!"
+    :: Generate safe log filename using PowerShell (avoids locale issues with %DATE%/%TIME%)
+    for /f "usebackq delims=" %%D in (`powershell -NoProfile -Command "Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'"`) do set "_TS=%%D"
+    set "_LOGFILE=%~dp0install_log_!_TS!.txt"
 
     :: Try PowerShell tee (live console output + log file simultaneously)
     powershell -NoProfile -ExecutionPolicy Bypass -Command "exit 0" >nul 2>&1
